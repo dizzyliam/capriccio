@@ -1,2 +1,2 @@
 # corporia
-A digital garden so seamless, it doesn't exist
+A digital garden so seamless, it doesn't exist.
