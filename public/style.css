@@ -9,10 +9,11 @@
   top: 3rem;
 }
 
-#delete-icon {
+#gardeners-menu {
   position: absolute;
   right: 4rem;
   top: 3rem;
+  text-align: right;
 }
   
   /* Box sizing rules */

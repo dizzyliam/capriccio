@@ -13,11 +13,36 @@
         <script src="//cdn.jsdelivr.net/npm/medium-editor@latest/dist/js/medium-editor.min.js"></script>
         <script src="//code.jquery.com/jquery-3.5.1.js"></script>
 
-        <img src="/icon.png" id="login-icon" onclick="promptPass()"/>
-        <a hidden id="delete-icon" href="#" onclick="deleteFile()">Delete.</a>
+        <img src="/icon.png" id="login-icon" onclick="window.location.replace('/');" oncontextmenu="promptPass();return false;"/>
+
+        <div hidden id="gardeners-menu">
+            <i id="saved-icon">Saved.</i> <br>
+            <a id="delete-icon" href="#" onclick="deleteFile()">Delete.</a>
+        </div>
 
         #CONTENT#
         <script>
+
+            function saveEdits() {
+                if ($("#saved-icon").html() != "Saved.") {
+                    var dataSend = {pass: pass, loc: location.pathname, body: $("#editable").html()};
+                    $.ajax({
+                        url: '/api/edit',
+                        type: 'POST',
+                        data: JSON.stringify(dataSend),
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: 'json',
+                        async: false,
+                        success: function(data) {
+                            if (data["success"] == false) {
+                                alert("Save failed; please try logging in again. Have a good day.");
+                            } else {
+                                $("#saved-icon").html("Saved.");
+                            }
+                        }
+                    });
+                }
+            }
 
             var pass = localStorage.getItem("pass");
             if (typeof(localStorage.getItem("pass")) != "undefined" && localStorage.getItem("pass") != null) {
@@ -42,29 +67,37 @@
                             }
                         });
 
-                        $("#delete-icon").show()
+                        $("#gardeners-menu").show()
+
+                        window.setInterval(function(){
+                            saveEdits();
+                        }, 5000);
+
+                        $(window).bind('keydown', function(event) {
+                            if (event.ctrlKey || event.metaKey) {
+                                switch (String.fromCharCode(event.which).toLowerCase()) {
+                                case 's':
+                                    event.preventDefault();
+                                    saveEdits();
+                                    break;
+                                }
+                            }
+                        });
 
                         editor.subscribe('editableInput', function (event, editable) {
-
-                            var dataSend = {pass: pass, loc: location.pathname, body: $("#editable").html()};
-
-                            $.ajax({
-                                url: '/api/edit',
-                                type: 'POST',
-                                data: JSON.stringify(dataSend),
-                                contentType: 'application/json; charset=utf-8',
-                                dataType: 'json',
-                                async: false,
-                                success: function(data) {
-                                    if (data["success"] == false) {
-                                        alert("Edit failed; please try logging in again. Have a good day.");
-                                    }
-                                }
-                            });
+                            if ($("#saved-icon").html() == "Saved.") {
+                                $("#saved-icon").html("Not saved.");
+                            }
                         });
 
                     }
                 });
+
+            } else if ($("#editable").html() == "") {
+                $("#editable").html(`
+                    <h2>The garden ends here.</h2>
+                    <i>You are invited to stay for a while, in this untamed bush, before returning to the garden paths.</i>
+                `);
             }
 
             function promptPass() {
