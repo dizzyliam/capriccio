@@ -204,11 +204,6 @@
     white-space: nowrap;
   }
   
-  /* Center align the title */
-  h1:first-child {
-    text-align: center;
-  }
-  
   /* Nested ordered list for ToC */
   nav ol {
     counter-reset: item;
